@@ -1,0 +1,162 @@
+/** 
+ * This is my code using pieces from:
+ * https://github.com/CA23/Whack-A-Mole/blob/master/WhackAMole.java
+ * https://gist.github.com/Rdilorenzo73/d65d24dfb0984f2e3fc30ffbfc31f109#file-whackamole-java
+ */
+import java.util.Scanner;
+import java.util.Random;
+
+public class WhackAMole {
+
+		public static int score = 0, molesLeft = 0, attemptsLeft = 12;
+	    public static char[][] moleGrid;
+	        
+	    public WhackAMole(int numAttempts, int gridDimension) {
+	        attemptsLeft = numAttempts; 
+	        moleGrid = new char[gridDimension][gridDimension];
+	        //construct empty grid of stars from user input for square grid
+	        //for integer row/column less than grid dimension, mark each coordinate with a *
+	        //repeat when reaching the end of the array (j/column) and start next array (i/row)
+	        for(int row = 0; row < gridDimension; row++) {
+	            for(int col = 0; col < gridDimension; col++) {
+	            	moleGrid[row][col] = '*';
+	            	System.out.print('*'); //prints stars until it reaches end of array
+	            }
+	            System.out.println(); //acts as a return to new line so that for loop/consecutive arrays can be printed like above
+	        }  
+	    }
+	    
+	    public static boolean place(int x, int y) {  //accepts the x, y values to enter the moles if true
+	        if(moleGrid[x][y] == '*') {
+	            moleGrid[x][y] = 'M';
+	            molesLeft++;
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+
+	    }
+	    
+	        
+	    public static void whack(int row, int col) {
+	        
+	        if(row == -1 && col == -1) {
+	            System.out.println("Maybe another time. Goodbye!");
+	            attemptsLeft = 0;
+	            printGrid();
+	            main(null);  
+	        }
+	        else if (moleGrid[row][col] == 'M') {
+	            System.out.println("You found a mole!");
+	            moleGrid[row][col] = 'W';
+	            score++;
+	            attemptsLeft--;
+	            molesLeft--;
+	            printPlayGridToUser(row, col);
+	            playGame();
+	        }
+	        else if (moleGrid[row][col] == '*') {
+	            System.out.println("No mole here. Sorry!");
+	            moleGrid[row][col] = 'X';
+	            attemptsLeft--;
+	            printPlayGridToUser(row, col);
+	            playGame();
+	        }
+	        else {
+	            System.out.println("Not a valid option. Try again!");
+	            attemptsLeft--;
+	            playGame();
+	        }    
+	    }
+	        
+	    public static void printPlayGridToUser(int row, int col) { // method to display grid as gameplay progresses
+	        for(row = 0; row < moleGrid.length; row++) {
+	        	for(col = 0; col < moleGrid.length; col++) {
+	        		if(moleGrid[row][col] == 'W') {
+	        			System.out.print("W" + " ");
+	        		}
+	        		else if(moleGrid[row][col] == 'X') {
+	        			System.out.print("X" + " ");
+	        		}
+	        		else {
+	        			System.out.print("*" + " ");
+	        		}
+	        	}
+	        	System.out.print("\n");
+	        }
+	    }
+	        
+	    public static void printGrid() {  // method to display placed moles to coder and final grid to user on exit
+	        for(int row = 0; row < moleGrid.length; row++) {
+	            for(int col = 0; col < moleGrid.length; col++) {
+	                 System.out.print(moleGrid[row][col] + " ");
+	            }
+	            System.out.println("");
+	        }
+	    }
+	    
+	    public static void displayStats(int s, int m, int a) {
+	        s = score;
+	        m = molesLeft;
+	        a = attemptsLeft;
+	        System.out.println("*********************************************");
+	        System.out.println("Current score: " + s);
+	        System.out.println("Moles left to find: " + m);
+	        System.out.println("Attemps left: " + a);
+	        System.out.println("*********************************************");
+	    }
+	    
+	    public static void explainGame() {
+	        System.out.println("Welcome to Whack A Mole. ");
+	        System.out.println("Locate all 5 moles before your 12 attempts run out.");
+	        System.out.println("Ready?? Let's go!");
+	        
+	    }
+	    
+	    public static void playGame() {
+	        while(attemptsLeft > 0 && molesLeft > 0) {
+	        	displayStats(score, molesLeft, attemptsLeft);
+	        	Scanner scanObj1 = new Scanner(System.in);
+	            Scanner scanObj2 = new Scanner(System.in);
+	            System.out.println("Enter a row number 0 to 4 or -1 to exit.");
+	            int userNum1 = scanObj1.nextInt();
+	            System.out.println("Enter a column number 0 to 4 or -1 to exit.");
+	            int userNum2 = scanObj2.nextInt();
+	            whack(userNum1, userNum2);
+	        }
+	        if (attemptsLeft == 0 && molesLeft > 0) {
+	        	System.out.println("Game over. Your final score was: " + score);
+	        	System.out.println("Here were the hidden moles");
+	        	printGrid();
+	        	main(null);
+	        }
+	        else if (molesLeft == 0 && attemptsLeft >= 0) {
+	        	System.out.println("Congratulations! You found all the moles!");
+	        	System.out.println("Your final stats are: ");
+	        	displayStats(score, molesLeft, attemptsLeft);
+	        	main(null);
+	        }
+	    }
+	    
+	    public static void main(String[] args) {
+	        explainGame();
+	        System.out.println("Here is your board: ");
+
+	        WhackAMole game = new WhackAMole(12, 5); // 12 attempts, 5*5 grid for 25 spaces    
+	        
+	        //place the moles
+	        Random r = new Random(); //uses the inbuilt Random class to create an object called r
+	        int placedMoles = 0; // 5 moles to place
+	        while (placedMoles < 5) {
+	            int x = r.nextInt(moleGrid.length); // assigning random Int that doesn't exceed length to variable x
+	            int y = r.nextInt(moleGrid.length); // assigning random Int that doesn't exceed length to variable y
+	            if (WhackAMole.place(x, y)) {
+	            	placedMoles++; //should only update counter if we can return TRUE from place method (i.e. no M already on that coordinate)
+	            }
+	        }
+	    
+	        playGame();
+	        
+	    }
+}
